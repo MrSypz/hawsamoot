@@ -4,6 +4,7 @@
   "package": "sypztep.hawsamoot.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "attribute.LivingEntityMixin"
   ],
   "client": [
   ],
