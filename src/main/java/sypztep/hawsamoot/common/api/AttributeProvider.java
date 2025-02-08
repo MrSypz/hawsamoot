@@ -26,8 +26,8 @@ public class AttributeProvider {
      * @param targets Where this attribute should apply (LIVING, PLAYER, or BOTH).
      */
     public static void registerAttribute(String id, RegistryEntry<EntityAttribute> attribute, double baseValue, EnumSet<Target> targets) {
-        if (id == null || attribute == null) {
-            throw new IllegalArgumentException("ID and attribute must not be null");
+        if (id == null || attribute == null || targets == null) {
+            throw new IllegalArgumentException("ID and attribute and target must not be null");
         }
         ATTRIBUTES.add(new AttributeRegistration(id, attribute, baseValue, targets));
     }
@@ -56,6 +56,16 @@ public class AttributeProvider {
      *     }
      * }
      * }</pre>
+     *
+     * <h3>Or</h3>
+     * @example
+     * <pre>{@code
+     * static {
+     *     AttributeProvider.addRegistry(new MyModAttributes());
+     * }
+     * }
+     *
+     * </pre>
      */
     public static void addRegistry(ModAttributeRegistry registry) {
         if (registry == null) {
@@ -95,6 +105,7 @@ public class AttributeProvider {
 
     /**
      * Enum to define where an attribute should apply.
+     * @since 1.0.2
      */
     public enum Target {
         LIVING, PLAYER
