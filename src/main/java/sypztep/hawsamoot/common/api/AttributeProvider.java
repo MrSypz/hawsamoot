@@ -3,6 +3,7 @@ package sypztep.hawsamoot.common.api;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.registry.entry.RegistryEntry;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -17,24 +18,24 @@ public class AttributeProvider {
     private static final List<ModAttributeRegistry> REGISTRIES = new ArrayList<>();
 
     /**
-     * Registers a new attribute with the specified ID and attribute instance.
+     * Registers a new attribute with the specified targets.
      *
-     * @param id The unique identifier for the attribute
-     * @param attribute The RegistryEntry<@EntityAttribute> instance to register
-     * @throws IllegalArgumentException if id or attribute is null
-     *
-     * @example
-     * <pre>{@code
-     * RegistryEntry<@EntityAttribute> myAttribute = new ClampedEntityAttribute("attribute.name.generic.example", 0, 0.0, 100.0);
-     * AttributeProvider.registerAttribute("mod_id.example_attribute", myAttribute);
-     * }</pre>
+     * @param id The unique identifier for the attribute.
+     * @param attribute The RegistryEntry<EntityAttribute> instance.
+     * @param baseValue The base value of the attribute.
+     * @param targets Where this attribute should apply (LIVING, PLAYER, or BOTH).
      */
-    public static void registerAttribute(String id, RegistryEntry<EntityAttribute> attribute, double baseValue) {
+    public static void registerAttribute(String id, RegistryEntry<EntityAttribute> attribute, double baseValue, EnumSet<Target> targets) {
         if (id == null || attribute == null) {
             throw new IllegalArgumentException("ID and attribute must not be null");
         }
-        ATTRIBUTES.add(new AttributeRegistration(id, attribute,baseValue));
+        ATTRIBUTES.add(new AttributeRegistration(id, attribute, baseValue, targets));
     }
+
+    public static void registerAttribute(String id, RegistryEntry<EntityAttribute> attribute, double baseValue) {
+        registerAttribute(id, attribute, baseValue, EnumSet.of(Target.LIVING, Target.PLAYER)); // Default: Apply to both
+    }
+
     public static void registerAttribute(String id, RegistryEntry<EntityAttribute> attribute) {
         registerAttribute(id, attribute, 0.0);
     }
@@ -77,11 +78,41 @@ public class AttributeProvider {
     }
 
     /**
+     * Retrieves all attributes that should be applied to the given target type.
+     *
+     * @param target The target entity type (LIVING or PLAYER).
+     * @return A list of attributes applicable to the target.
+     */
+    public static List<AttributeRegistration> getAttributesForTarget(Target target) {
+        List<AttributeRegistration> applicableAttributes = new ArrayList<>();
+        for (AttributeRegistration registration : getAllAttributes()) {
+            if (registration.targets().contains(target)) {
+                applicableAttributes.add(registration);
+            }
+        }
+        return applicableAttributes;
+    }
+
+    /**
+     * Enum to define where an attribute should apply.
+     */
+    public enum Target {
+        LIVING, PLAYER
+    }
+
+    /**
      * Record class that holds the registration information for an attribute.
      *
      * @param id The unique identifier of the attribute
      * @param attribute The RegistryEntry<@EntityAttribute> instance
      * @param baseValue The base value for Attribute
+     * @param targets target appply attribute to apply on Target
+     * @see Target
      */
-    public record AttributeRegistration(String id, RegistryEntry<EntityAttribute> attribute, double baseValue) {}
+    public record AttributeRegistration(
+            String id,
+            RegistryEntry<EntityAttribute> attribute,
+            double baseValue,
+            EnumSet<Target> targets
+    ) {}
 }
