@@ -1,7 +1,5 @@
 package sypztep.hawsamoot.common.api;
 
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.registry.entry.RegistryEntry;
 import java.util.List;
 
 /**
@@ -43,5 +41,5 @@ public interface ModAttributeRegistry {
      *
      * @return A List of RegistryEntry<EntityAttribute> containing all registered attributes
      */
-    List<RegistryEntry<EntityAttribute>> getAttributes();
+    List<AttributeProvider.AttributeRegistration> getAttributeRegistrations();
 }

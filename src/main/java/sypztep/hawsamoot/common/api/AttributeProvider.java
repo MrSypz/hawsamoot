@@ -20,20 +20,23 @@ public class AttributeProvider {
      * Registers a new attribute with the specified ID and attribute instance.
      *
      * @param id The unique identifier for the attribute
-     * @param attribute The EntityAttribute instance to register
+     * @param attribute The RegistryEntry<@EntityAttribute> instance to register
      * @throws IllegalArgumentException if id or attribute is null
      *
      * @example
      * <pre>{@code
-     * EntityAttribute myAttribute = new ClampedEntityAttribute("attribute.name.generic.example", 0, 0.0, 100.0);
+     * RegistryEntry<@EntityAttribute> myAttribute = new ClampedEntityAttribute("attribute.name.generic.example", 0, 0.0, 100.0);
      * AttributeProvider.registerAttribute("mod_id.example_attribute", myAttribute);
      * }</pre>
      */
-    public static void registerAttribute(String id, EntityAttribute attribute) {
+    public static void registerAttribute(String id, RegistryEntry<EntityAttribute> attribute, double baseValue) {
         if (id == null || attribute == null) {
             throw new IllegalArgumentException("ID and attribute must not be null");
         }
-        ATTRIBUTES.add(new AttributeRegistration(id, attribute));
+        ATTRIBUTES.add(new AttributeRegistration(id, attribute,baseValue));
+    }
+    public static void registerAttribute(String id, RegistryEntry<EntityAttribute> attribute) {
+        registerAttribute(id, attribute, 0.0);
     }
 
     /**
@@ -65,10 +68,10 @@ public class AttributeProvider {
      *
      * @return A List of all registered RegistryEntry<EntityAttribute>
      */
-    public static List<RegistryEntry<EntityAttribute>> getAllAttributes() {
-        List<RegistryEntry<EntityAttribute>> attributes = new ArrayList<>();
+    public static List<AttributeRegistration> getAllAttributes() {
+        List<AttributeRegistration> attributes = new ArrayList<>();
         for (ModAttributeRegistry registry : REGISTRIES) {
-            attributes.addAll(registry.getAttributes());
+            attributes.addAll(registry.getAttributeRegistrations());
         }
         return attributes;
     }
@@ -77,7 +80,8 @@ public class AttributeProvider {
      * Record class that holds the registration information for an attribute.
      *
      * @param id The unique identifier of the attribute
-     * @param attribute The EntityAttribute instance
+     * @param attribute The RegistryEntry<@EntityAttribute> instance
+     * @param baseValue The base value for Attribute
      */
-    public record AttributeRegistration(String id, EntityAttribute attribute) {}
+    public record AttributeRegistration(String id, RegistryEntry<EntityAttribute> attribute, double baseValue) {}
 }
