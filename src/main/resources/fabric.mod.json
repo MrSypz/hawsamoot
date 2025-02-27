@@ -15,6 +15,9 @@
     ],
     "main": [
       "sypztep.hawsamoot.Hawsamoot"
+    ],
+    "fabric-datagen": [
+      "sypztep.hawsamoot.data.ModDataGenerator"
     ]
   },
   "mixins": [
