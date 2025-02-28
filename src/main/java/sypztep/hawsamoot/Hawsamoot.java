@@ -2,6 +2,7 @@ package sypztep.hawsamoot;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
+import sypztep.hawsamoot.common.init.ModDataComponents;
 
 public class Hawsamoot implements ModInitializer {
     public static final String MOD_ID = "hawsamoot";
@@ -11,5 +12,6 @@ public class Hawsamoot implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModDataComponents.init();
     }
 }

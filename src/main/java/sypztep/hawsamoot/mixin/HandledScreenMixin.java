@@ -7,6 +7,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +18,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import sypztep.hawsamoot.api.border.BorderStyle;
+import sypztep.hawsamoot.common.data.RarityBorder;
+import sypztep.hawsamoot.common.init.ModDataComponents;
 import sypztep.hawsamoot.common.tag.ModItemTags;
+import sypztep.hawsamoot.common.util.RarityHelper;
 import sypztep.hawsamoot.util.BorderHandler;
 
 import java.util.List;
@@ -76,29 +81,38 @@ public abstract class HandledScreenMixin extends Screen {
 
     @Unique
     private BorderStyle determineItemBorderStyle(ItemStack stack) {
-        // Then check for mod tags (with priority)
-        if (stack.isIn(ModItemTags.RARITY_CELESTIAL)) {
-            return BorderStyle.CELESTIAL;
-        } else if (stack.isIn(ModItemTags.RARITY_MYTHIC)) {
-            return BorderStyle.MYTHIC;
-        } else if (stack.isIn(ModItemTags.RARITY_LEGENDARY)) {
-            return BorderStyle.LEGENDARY;
-        } else if (stack.isIn(ModItemTags.RARITY_EPIC)) {
-            return BorderStyle.EPIC;
-        } else if (stack.isIn(ModItemTags.RARITY_RARE)) {
-            return BorderStyle.RARE;
-        } else if (stack.isIn(ModItemTags.RARITY_UNCOMMON)) {
-            return BorderStyle.UNCOMMON;
-        } else if (stack.isIn(ModItemTags.RARITY_COMMON)) {
-            return BorderStyle.COMMON;
+        // Check for component first
+        if (stack.contains(ModDataComponents.RARITY_BORDER)) {
+            RarityBorder rarity = RarityHelper.getRarity(stack);
+            return rarity.toBorderStyle();
         }
 
-        String rarity = stack.getRarity().asString().toLowerCase();
-        return switch (rarity) {
-            case "uncommon" -> BorderStyle.UNCOMMON;
-            case "rare" -> BorderStyle.RARE;
-            case "epic" -> BorderStyle.EPIC;
-            default -> BorderStyle.COMMON;
+        // Fallback to tags if no component is present
+        if (stack.isIn(ModItemTags.RARITY_CELESTIAL)) {
+            return RarityBorder.CELESTIAL.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_MYTHIC)) {
+            return RarityBorder.MYTHIC.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_LEGENDARY)) {
+            return RarityBorder.LEGENDARY.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_EPIC)) {
+            return RarityBorder.EPIC.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_RARE)) {
+            return RarityBorder.RARE.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_UNCOMMON)) {
+            return RarityBorder.UNCOMMON.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_COMMON)) {
+            return RarityBorder.COMMON.toBorderStyle();
+        }
+
+        // Fallback to vanilla item rarity if no tags are present
+
+        String vanillaRarity = stack.getRarity().toString().toLowerCase();
+
+        return switch (vanillaRarity) {
+            case "uncommon" -> RarityBorder.UNCOMMON.toBorderStyle();
+            case "rare" -> RarityBorder.RARE.toBorderStyle();
+            case "epic" -> RarityBorder.EPIC.toBorderStyle();
+            default -> RarityBorder.COMMON.toBorderStyle();
         };
     }
 }
