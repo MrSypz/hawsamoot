@@ -11,7 +11,7 @@ import java.nio.file.Path;
 
 public class ModConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve(Hawsamoot.MOD_ID + ".json");
+    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve(Hawsamoot.MODID + ".json");
 
     public static ModConfigData CONFIG = new ModConfigData();
 
@@ -24,6 +24,7 @@ public class ModConfig {
         public boolean enableLargerMergeRadius = true;
         public double mergeRadius = 2.0;
 
+        // Client Side
         // Custom name module
         public boolean enableCustomItemNames = true;
         public float yOffset = 10f;

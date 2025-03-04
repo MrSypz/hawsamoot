@@ -10,11 +10,11 @@ import sypztep.hawsamoot.common.util.ModuleManager;
 
 
 public class Hawsamoot implements ModInitializer {
-    public static final String MOD_ID = "hawsamoot";
-    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    public static final String MODID = "hawsamoot";
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static Identifier id(String path) {
-        return Identifier.of(MOD_ID, path);
+        return Identifier.of(MODID, path);
     }
 
     @Override

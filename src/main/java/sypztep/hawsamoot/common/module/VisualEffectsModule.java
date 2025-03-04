@@ -14,7 +14,7 @@ import sypztep.hawsamoot.common.util.Module;
  */
 public class VisualEffectsModule implements Module {
     private static final Identifier GLOW_TEXTURE = Hawsamoot.id( "textures/misc/white.png");
-    private RenderLayer createBeaconColorLayer(boolean affectsOutline) {
+    private RenderLayer createBeamColorLayer(boolean affectsOutline) {
         RenderLayer.MultiPhaseParameters params = RenderLayer.MultiPhaseParameters.builder()
                 .program(RenderLayer.POSITION_COLOR_PROGRAM)
                 .transparency(RenderLayer.TRANSLUCENT_TRANSPARENCY)
@@ -24,7 +24,7 @@ public class VisualEffectsModule implements Module {
                 .build(false);
 
         return RenderLayer.of(
-                "Yahooo",
+                "translucent_beam",
                 VertexFormats.POSITION_COLOR,
                 VertexFormat.DrawMode.QUADS,
                 1536,
@@ -33,7 +33,7 @@ public class VisualEffectsModule implements Module {
                 params
         );
     }
-    public RenderLayer BEACON_NORMAL_LAYER = createBeaconColorLayer(true);
+    public RenderLayer BEAM_NORMAL_LAYER = createBeamColorLayer(true);
 
     @Override
     public String getId() {
@@ -78,7 +78,7 @@ public class VisualEffectsModule implements Module {
         }
 
         // Only render for items on ground with custom names
-        return itemEntity != null && itemEntity.isOnGround() && itemEntity.hasCustomName();
+        return itemEntity != null && itemEntity.isOnGround();
     }
 
     /**
@@ -87,29 +87,41 @@ public class VisualEffectsModule implements Module {
     public boolean isBeamEffectEnabled() {
         return isEnabled() && ModConfig.CONFIG.enableBeamEffect;
     }
-
+    public void setBeamEffectEnabled(Boolean aBoolean) {
+        ModConfig.CONFIG.enableBeamEffect = aBoolean;
+    }
     /**
      * Checks if glow effect is enabled
      */
     public boolean isGlowEffectEnabled() {
         return isEnabled() && ModConfig.CONFIG.enableGlowEffect;
     }
-
+    public void setGlowEffectEnabled(boolean aboolean) {
+        ModConfig.CONFIG.enableGlowEffect = aboolean;
+    }
     /**
      * Checks if enhanced text display is enabled
      */
     public boolean isEnhancedTextEnabled() {
         return isEnabled() && ModConfig.CONFIG.enableEnhancedText;
     }
-
+    public void setEnhancedTextEnabled(boolean aBoolean) {
+        ModConfig.CONFIG.enableEnhancedText = aBoolean;
+    }
     /**
      * Gets the beam animation duration in ticks
      */
     public int getBeamAnimationDuration() {
         return ModConfig.CONFIG.beamAnimationDuration;
     }
+    public void setBeamAnimationDuration(int duration) {
+        ModConfig.CONFIG.beamAnimationDuration = duration;
+    }
     public float getFadeDistance() {
         return ModConfig.CONFIG.fadeDistance;
+    }
+    public void setFadeDistance(float distance) {
+        ModConfig.CONFIG.fadeDistance = distance;
     }
 
     /**
@@ -118,19 +130,26 @@ public class VisualEffectsModule implements Module {
     public float getBeamMaxHeight() {
         return ModConfig.CONFIG.beamMaxHeight;
     }
-
+    public void setBeamMaxHeight(float height) {
+        ModConfig.CONFIG.beamMaxHeight = height;
+    }
     /**
      * Gets the beam width
      */
     public float getBeamWidth() {
         return ModConfig.CONFIG.beamWidth;
     }
-
+    public void setBeamWidth(float width) {
+        ModConfig.CONFIG.beamWidth = width;
+    }
     /**
      * Gets the beam alpha (transparency)
      */
     public float getBeamAlpha() {
         return ModConfig.CONFIG.beamAlpha;
+    }
+    public void setBeamAlpha(float alpha) {
+        ModConfig.CONFIG.beamAlpha = alpha;
     }
 
     /**
@@ -139,12 +158,22 @@ public class VisualEffectsModule implements Module {
     public int getGlowAnimationDuration() {
         return ModConfig.CONFIG.glowAnimationDuration;
     }
+    public void setGlowAnimationDuration(int duration) {
+        ModConfig.CONFIG.glowAnimationDuration = duration;
+    }
     public float getInnerRotationSpeed() {
         return ModConfig.CONFIG.innerRotationSpeed;
+    }
+    public void setInnerRotationSpeed(float speed) {
+        ModConfig.CONFIG.innerRotationSpeed = speed;
     }
     public float getOuterRotationSpeed() {
         return ModConfig.CONFIG.outerRotationSpeed;
     }
+    public void setOuterRotationSpeed(float speed) {
+        ModConfig.CONFIG.outerRotationSpeed = speed;
+    }
+
 
 
     /**
@@ -153,8 +182,14 @@ public class VisualEffectsModule implements Module {
     public float getGlowSize() {
         return ModConfig.CONFIG.glowSize;
     }
+    public void setGlowSize(float size) {
+        ModConfig.CONFIG.glowSize = size;
+    }
     public float getPulsePeriod() {
         return ModConfig.CONFIG.pulsePeriod;
+    }
+    public void setPulsePeriod(float period) {
+        ModConfig.CONFIG.pulsePeriod = period;
     }
     /**
      * Gets the glow effect alpha (transparency)
@@ -162,11 +197,20 @@ public class VisualEffectsModule implements Module {
     public float getGlowAlpha() {
         return ModConfig.CONFIG.glowAlpha;
     }
+    public void setGlowAlpha(float alpha) {
+        ModConfig.CONFIG.glowAlpha = alpha;
+    }
     public float getPulseAmp() {
         return ModConfig.CONFIG.pulseAmp;
     }
+    public void setPulseAmp(float amp) {
+        ModConfig.CONFIG.pulseAmp = amp;
+    }
     public float getMaxFadeDistance() {
         return ModConfig.CONFIG.maxFadeDistance;
+    }
+    public void setMaxFadeDistance(float distance) {
+        ModConfig.CONFIG.maxFadeDistance = distance;
     }
     /**
      * Gets the glow effect texture

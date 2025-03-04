@@ -44,6 +44,9 @@ public class CustomNameModule implements Module {
     public float getYOffset() {
         return ModConfig.CONFIG.yOffset;
     }
+    public void setYOffset(float yOffset) {
+        ModConfig.CONFIG.yOffset = yOffset;
+    }
     public Text updateCustomName(ItemEntity entity) {
         if (entity == null) return null;
 
@@ -58,4 +61,5 @@ public class CustomNameModule implements Module {
                 .append(Text.literal(" x" + count + " ").formatted(Formatting.RED, Formatting.BOLD))
                 .append(Text.literal(itemName).formatted(Formatting.WHITE));
     }
+
 }
