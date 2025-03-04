@@ -1,4 +1,4 @@
-package sypztep.hawsamoot.mixin;
+package sypztep.hawsamoot.mixin.borderstyle;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -1,4 +1,4 @@
-package sypztep.hawsamoot.util;
+package sypztep.hawsamoot.client.render.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -8,13 +8,18 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.gui.tooltip.TooltipPositioner;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector2ic;
 import sypztep.hawsamoot.api.border.BorderStyle;
 import sypztep.hawsamoot.api.border.BorderTemplate;
+import sypztep.hawsamoot.common.data.RarityBorder;
+import sypztep.hawsamoot.common.init.ModDataComponents;
+import sypztep.hawsamoot.common.tag.ModItemTags;
 import sypztep.hawsamoot.common.util.ColorUtils;
-import sypztep.hawsamoot.mixin.DrawContextAccessor;
+import sypztep.hawsamoot.common.util.RarityHelper;
+import sypztep.hawsamoot.mixin.borderstyle.DrawContextAccessor;
 
 import java.util.List;
 import java.util.function.Function;
@@ -24,7 +29,7 @@ import java.util.function.Function;
  * Updated for the latest Minecraft version.
  */
 @Environment(EnvType.CLIENT)
-public final class BorderHandler {
+public final class BorderRenderer {
     public static void renderStyledTooltip(DrawContext context, TextRenderer textRenderer,
                                            List<TooltipComponent> components, int x, int y,
                                            TooltipPositioner positioner, BorderStyle borderStyle) {
@@ -134,6 +139,42 @@ public final class BorderHandler {
         }
     }
 
+    public static BorderStyle determineItemBorderStyle(ItemStack stack) {
+        // Check for component first
+        if (stack.contains(ModDataComponents.RARITY_BORDER)) {
+            RarityBorder rarity = RarityHelper.getRarity(stack);
+            return rarity.toBorderStyle();
+        }
+
+        // Fallback to tags if no component is present
+        if (stack.isIn(ModItemTags.RARITY_CELESTIAL)) {
+            return RarityBorder.CELESTIAL.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_MYTHIC)) {
+            return RarityBorder.MYTHIC.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_LEGENDARY)) {
+            return RarityBorder.LEGENDARY.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_EPIC)) {
+            return RarityBorder.EPIC.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_RARE)) {
+            return RarityBorder.RARE.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_UNCOMMON)) {
+            return RarityBorder.UNCOMMON.toBorderStyle();
+        } else if (stack.isIn(ModItemTags.RARITY_COMMON)) {
+            return RarityBorder.COMMON.toBorderStyle();
+        }
+
+        // Fallback to vanilla item rarity if no tags are present
+
+        String vanillaRarity = stack.getRarity().toString().toLowerCase();
+
+        return switch (vanillaRarity) {
+            case "uncommon" -> RarityBorder.UNCOMMON.toBorderStyle();
+            case "rare" -> RarityBorder.RARE.toBorderStyle();
+            case "epic" -> RarityBorder.EPIC.toBorderStyle();
+            default -> RarityBorder.COMMON.toBorderStyle();
+        };
+    }
+
     private static void drawTextureRegion(DrawContext context, Function<Identifier, RenderLayer> renderLayerProvider,
                                           Identifier texture, int x, int y, int u, int v,
                                           int width, int height, int textureWidth, int textureHeight) {
@@ -146,13 +187,8 @@ public final class BorderHandler {
         int j = y - 3;
         int k = width + 6;
         int l = height + 6;
-        renderHorizontalLine(context, i, j - 1, k, 400, bgStart);
-        renderHorizontalLine(context, i, j + l, k, 400, bgStart);
 
         renderRectangleBackground(context, i, j, k, l, 400, bgStart, bgEnd);
-
-        renderVerticalLine(context, i - 1, j, l, 400, bgStart);
-        renderVerticalLine(context, i + k, j, l, 400, bgStart);
         renderBorder(context, i, j + 1, k, l, 400, colorStart, colorEnd);
         renderHorizontalLineWithCenterGradient(context, i, j + 12, k, 1, 400, colorStart, 0);
     }
@@ -163,10 +199,6 @@ public final class BorderHandler {
         renderVerticalLine(context, x + width - 1, y, height - 2, z, startColor, endColor);
         renderHorizontalLine(context, x, y - 1, width, z, startColor);
         renderHorizontalLine(context, x, y - 1 + height - 1, width, z, endColor);
-    }
-
-    private static void renderVerticalLine(DrawContext context, int x, int y, int height, int z, int color) {
-        context.fill(x, y, x + 1, y + height, z, color);
     }
 
     private static void renderVerticalLine(DrawContext context, int x, int y, int height, int z,
@@ -183,7 +215,7 @@ public final class BorderHandler {
         context.fillGradient(x, y, x + width, y + height, z, startColor, endColor);
     }
 
-    public static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height,
+    private static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height,
                                                               int z, int centerColor, int edgeColor) {
         int centerX = x + width / 2;
         for (int dy = 0; dy < height; dy++) {

@@ -4,10 +4,15 @@
   "package": "sypztep.hawsamoot.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "itemmerge.itemstacksize.ItemEntityMixin",
+    "itemmerge.itemstacksize.ItemStackMixin",
+    "itemmerge.mergeeffects.ItemEntityMixin",
+    "itemmerge.mergeradius.ItemEntityMixin"
   ],
   "client": [
-    "DrawContextAccessor",
-    "HandledScreenMixin"
+    "borderstyle.DrawContextAccessor",
+    "borderstyle.HandledScreenMixin",
+    "itemmerge.client.visual.ItemEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

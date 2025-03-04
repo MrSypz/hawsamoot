@@ -1,7 +1,6 @@
 package sypztep.hawsamoot.common.util;
 
 public class ColorUtils {
-
     public static int interpolateColor(int color1, int color2, float factor) {
         // Extract ARGB components from each color
         int a1 = (color1 >> 24) & 0xff;
@@ -23,29 +22,22 @@ public class ColorUtils {
         // Combine components back into a color
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
-    public static int lightenColor(int color, float amount) {
-        int a = (color >> 24) & 0xff;
-        int r = (color >> 16) & 0xff;
-        int g = (color >> 8) & 0xff;
-        int b = color & 0xff;
+    public static float[] extractColorComponents(int color) {
+        float alpha = ((color >> 24) & 0xFF) / 255.0f;
+        float red = ((color >> 16) & 0xFF) / 255.0f;
+        float green = ((color >> 8) & 0xFF) / 255.0f;
+        float blue = (color & 0xFF) / 255.0f;
 
-        r = (int) Math.min(r + (255 - r) * amount, 255);
-        g = (int) Math.min(g + (255 - g) * amount, 255);
-        b = (int) Math.min(b + (255 - b) * amount, 255);
-
-        return (a << 24) | (r << 16) | (g << 8) | b;
+        return new float[] { red, green, blue, alpha };
     }
+    public static int applyAlpha(int color, int alpha) {
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
 
-    public static int darkenColor(int color, float amount) {
-        int a = (color >> 24) & 0xff;
-        int r = (color >> 16) & 0xff;
-        int g = (color >> 8) & 0xff;
-        int b = color & 0xff;
+        int originalAlpha = (color >> 24) & 0xFF;
+        int newAlpha = (originalAlpha * alpha) / 255;
 
-        r = (int) Math.max(r * (1 - amount), 0);
-        g = (int) Math.max(g * (1 - amount), 0);
-        b = (int) Math.max(b * (1 - amount), 0);
-
-        return (a << 24) | (r << 16) | (g << 8) | b;
+        return (newAlpha << 24) | (r << 16) | (g << 8) | b;
     }
 }
