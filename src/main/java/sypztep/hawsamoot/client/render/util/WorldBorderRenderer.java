@@ -36,7 +36,7 @@ public class WorldBorderRenderer {
     }
 
     private static void renderHorizontalLine(VertexContext context, int x, int y, int width, int z, int startColor) {
-        context.fill(x, y, x + width, y + 1, z, startColor);
+        context.fill(RenderLayer.getGui(),x, y, x + width, y + 1, z, startColor);
     }
 
     private static void renderRectangleBackground(VertexContext context, int x, int y, int width, int height,

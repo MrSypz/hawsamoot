@@ -3,7 +3,7 @@
   "id": "hawsamoot",
   "version": "${version}",
   "name": "hawsamoot",
-  "description": "RIF stands for 'Reduced Invincibility Frames.' The purpose of this mod is to reduce iFrame duration or disable it.",
+  "description": "Hawsamoot Module",
   "authors": [],
   "contact": {},
   "license": "All-Rights-Reserved",
@@ -15,6 +15,9 @@
     ],
     "main": [
       "sypztep.hawsamoot.Hawsamoot"
+    ],
+    "modmenu": [
+      "sypztep.hawsamoot.common.compat.ModMenuIntegration"
     ],
     "fabric-datagen": [
       "sypztep.hawsamoot.data.ModDataGenerator"

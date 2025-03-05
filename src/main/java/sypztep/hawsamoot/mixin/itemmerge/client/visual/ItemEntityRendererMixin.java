@@ -29,7 +29,6 @@ import sypztep.hawsamoot.client.render.util.WorldBorderRenderer;
 import sypztep.hawsamoot.common.module.CustomNameModule;
 import sypztep.hawsamoot.common.module.VisualEffectsModule;
 import sypztep.hawsamoot.common.util.ColorUtils;
-import sypztep.hawsamoot.common.util.ModuleManager;
 
 import java.util.function.Function;
 
@@ -37,12 +36,10 @@ import java.util.function.Function;
 @Mixin(ItemEntityRenderer.class)
 public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity, ItemEntityRenderState> {
     @Unique
-    private final VisualEffectsModule visualModule =
-            (VisualEffectsModule) ModuleManager.getInstance().getModule("visual_effects");
+    private final VisualEffectsModule visualModule = new VisualEffectsModule();
 
     @Unique
-    private final CustomNameModule customNameModule =
-            (CustomNameModule) ModuleManager.getInstance().getModule("custom_name");
+    private final CustomNameModule customNameModule = new CustomNameModule();
 
     @Unique
     private ItemEntity itemEntity;
@@ -233,18 +230,14 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
         float progress = getAnimatedProgress(state, visualModule.getBeamAnimationDuration());
         float height = visualModule.getBeamMaxHeight() * progress;
 
-        // Skip rendering if no visible height yet
         if (height < 0.1f) return;
 
-        // Save matrix state
         matrices.push();
 
-        // Simplified beam properties
         float width = visualModule.getBeamWidth();
         float halfWidth = width / 2.0f;
         VertexContext context = new VertexContext(matrices, vertexConsumers);
 
-        // Color with gradient - alpha depends on progress
         float alpha = visualModule.getBeamAlpha() * progress;
         float endAlpha = 0.0f;
 

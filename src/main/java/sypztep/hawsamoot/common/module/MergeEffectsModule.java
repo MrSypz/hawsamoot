@@ -7,49 +7,16 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
 import sypztep.hawsamoot.common.config.ModConfig;
-import sypztep.hawsamoot.common.util.Module;
+import sypztep.hawsamoot.common.util.ConfigHolder;
 
-public class MergeEffectsModule implements Module {
-    @Override
-    public String getId() {
-        return "merge_effects";
-    }
-
-    @Override
-    public String getName() {
-        return "Merge Effects";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Adds particle and sound effects when items merge";
-    }
-
+public class MergeEffectsModule implements ConfigHolder {
+    public MergeEffectsModule() {}
     @Override
     public boolean isEnabled() {
-        return ModConfig.CONFIG.enableMergeEffects;
+        return ModConfig.CONFIG.clientModule.mergeEffectsModule.enableMergeEffects;
     }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        ModConfig.CONFIG.enableMergeEffects = enabled;
-    }
-
-    @Override
-    public void initialize() {
-        // Nothing to initialize
-    }
-
-    @Override
-    public boolean requiresServerSync() {
-        return false;
-    }
-
-    /**
-     * Plays effects when items merge
-     */
     public void playMergeEffects(ItemEntity targetEntity, ItemEntity sourceEntity) {
-        if (!isEnabled()) return;
 
         World world = targetEntity.getWorld();
         if (world.isClient()) return;

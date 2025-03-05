@@ -6,12 +6,11 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import sypztep.hawsamoot.common.module.MergeRadiusModule;
-import sypztep.hawsamoot.common.util.ModuleManager;
 
 @Mixin(ItemEntity.class)
 public class ItemEntityMixin {
     @Unique
-    private final MergeRadiusModule mergeRadiusModule = (MergeRadiusModule) ModuleManager.getInstance().getModule("merge_radius");
+    private final MergeRadiusModule mergeRadiusModule = new MergeRadiusModule();
     @ModifyArg(method = "tryMerge()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Box;expand(DDD)Lnet/minecraft/util/math/Box;"), index = 0)
     private double modifyExpandX(double original) {
         return mergeRadiusModule.isEnabled() ? mergeRadiusModule.getMergeRadius() : original;

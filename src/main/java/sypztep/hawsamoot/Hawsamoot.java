@@ -4,9 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sypztep.hawsamoot.common.config.ModConfig;
 import sypztep.hawsamoot.common.init.ModDataComponents;
-import sypztep.hawsamoot.common.util.ModuleManager;
 
 
 public class Hawsamoot implements ModInitializer {
@@ -19,20 +17,6 @@ public class Hawsamoot implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ModConfig.load();
-
         ModDataComponents.init();
-        ModuleManager.getInstance().initializeModules();
-
-        logActiveModules();
-    }
-
-    private void logActiveModules() {
-        ModuleManager moduleManager = ModuleManager.getInstance();
-
-        LOGGER.info("Active modules:");
-        moduleManager.getModules().forEach((id, module) -> {
-            LOGGER.info("- {} ({}): {}", module.getName(), id, module.isEnabled() ? "Enabled" : "Disabled");
-        });
     }
 }

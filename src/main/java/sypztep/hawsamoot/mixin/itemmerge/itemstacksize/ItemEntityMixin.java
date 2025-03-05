@@ -8,12 +8,11 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import net.minecraft.entity.ItemEntity;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import sypztep.hawsamoot.common.module.StackSizeModule;
-import sypztep.hawsamoot.common.util.ModuleManager;
 
 @Mixin(ItemEntity.class)
 public class ItemEntityMixin {
     @Unique
-    private static final StackSizeModule stackSizeModule = (StackSizeModule) ModuleManager.getInstance().getModule("stack_size");
+    private static final StackSizeModule stackSizeModule = new StackSizeModule();
 
     @ModifyExpressionValue(method = "canMerge()Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getMaxCount()I"))
     private int modifyMaxCount(int original) {
