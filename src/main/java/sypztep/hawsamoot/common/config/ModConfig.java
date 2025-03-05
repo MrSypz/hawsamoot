@@ -3,11 +3,11 @@ package sypztep.hawsamoot.common.config;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import net.minecraft.util.Formatting;
 import sypztep.hawsamoot.Hawsamoot;
 
 @Config(name = Hawsamoot.MODID)
 public class ModConfig implements ConfigData {
-    public static ModConfig CONFIG = new ModConfig();
     // Stack Size Module
     @ConfigEntry.Category("stack_size")
     @ConfigEntry.Gui.TransitiveObject
@@ -29,7 +29,7 @@ public class ModConfig implements ConfigData {
         public boolean enableStackSizeIncrease = true;
 
         @ConfigEntry.Gui.RequiresRestart
-        @ConfigEntry.BoundedDiscrete(min = 1, max = 64 * 16)
+        @ConfigEntry.BoundedDiscrete(min = 1, max = 64 * 128)
         public int maxStackSize = 1024;
     }
 
@@ -47,15 +47,15 @@ public class ModConfig implements ConfigData {
     // Client-Side Configuration
     public static class ClientModule {
         // Custom Name Submodule
-        @ConfigEntry.Gui.CollapsibleObject(startExpanded = false)
+        @ConfigEntry.Gui.CollapsibleObject()
         public CustomNameModule customNameModule = new CustomNameModule();
 
         // Merge Effects Submodule
-        @ConfigEntry.Gui.CollapsibleObject(startExpanded = false)
+        @ConfigEntry.Gui.CollapsibleObject()
         public MergeEffectsModule mergeEffectsModule = new MergeEffectsModule();
 
         // Visual Effects Submodule
-        @ConfigEntry.Gui.CollapsibleObject(startExpanded = false)
+        @ConfigEntry.Gui.CollapsibleObject()
         public VisualEffectsModule visualEffectsModule = new VisualEffectsModule();
 
         // Custom Name Configurations
@@ -65,6 +65,22 @@ public class ModConfig implements ConfigData {
 
             @ConfigEntry.BoundedDiscrete(min = -50, max = 50)
             public float yOffset = 10f;
+
+            // Use the custom TextColor enum
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.DROPDOWN)
+            public TextColor prefixFormatting = TextColor.GOLD;
+
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.DROPDOWN)
+            public TextColor countFormatting = TextColor.RED;
+
+            @ConfigEntry.Gui.Tooltip
+            public boolean countBold = true;
+
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.DROPDOWN)
+            public TextColor nameFormatting = TextColor.WHITE;
+
+            @ConfigEntry.Gui.Tooltip
+            public String prefixText = ">";
         }
 
         // Merge Effects Configurations
@@ -78,10 +94,10 @@ public class ModConfig implements ConfigData {
             @ConfigEntry.Gui.Tooltip
             public boolean enableVisualEffects = true;
 
-            @ConfigEntry.Gui.CollapsibleObject(startExpanded = false)
+            @ConfigEntry.Gui.CollapsibleObject()
             public BeamEffectModule beamEffectModule = new BeamEffectModule();
 
-            @ConfigEntry.Gui.CollapsibleObject(startExpanded = false)
+            @ConfigEntry.Gui.CollapsibleObject()
             public GlowEffectModule glowEffectModule = new GlowEffectModule();
 
             @ConfigEntry.Gui.Tooltip
@@ -137,6 +153,46 @@ public class ModConfig implements ConfigData {
                 @ConfigEntry.BoundedDiscrete(min = 0, max = 1)
                 public float glowAlpha = 0.5f;
             }
+        }
+    }
+    // Create a custom enum for formatting options
+    public enum TextColor {
+        BLACK("Black", Formatting.BLACK),
+        DARK_BLUE("Dark Blue", Formatting.DARK_BLUE),
+        DARK_GREEN("Dark Green", Formatting.DARK_GREEN),
+        DARK_AQUA("Dark Aqua", Formatting.DARK_AQUA),
+        DARK_RED("Dark Red", Formatting.DARK_RED),
+        DARK_PURPLE("Dark Purple", Formatting.DARK_PURPLE),
+        GOLD("Gold", Formatting.GOLD),
+        GRAY("Gray", Formatting.GRAY),
+        DARK_GRAY("Dark Gray", Formatting.DARK_GRAY),
+        BLUE("Blue", Formatting.BLUE),
+        GREEN("Green", Formatting.GREEN),
+        AQUA("Aqua", Formatting.AQUA),
+        RED("Red", Formatting.RED),
+        LIGHT_PURPLE("Light Purple", Formatting.LIGHT_PURPLE),
+        YELLOW("Yellow", Formatting.YELLOW),
+        WHITE("White", Formatting.WHITE);
+
+        private final String displayName;
+        private final Formatting formatting;
+
+        TextColor(String displayName, Formatting formatting) {
+            this.displayName = displayName;
+            this.formatting = formatting;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public Formatting getFormatting() {
+            return formatting;
+        }
+
+        @Override
+        public String toString() {
+            return displayName;
         }
     }
 }

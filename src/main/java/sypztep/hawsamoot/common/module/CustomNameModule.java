@@ -4,21 +4,23 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import sypztep.hawsamoot.common.config.ModConfig;
+import sypztep.hawsamoot.client.HawsamootClient;
 import sypztep.hawsamoot.common.util.ConfigHolder;
 
 public class CustomNameModule implements ConfigHolder {
     public CustomNameModule() {}
     public float getYOffset() {
-        return ModConfig.CONFIG.clientModule.customNameModule.yOffset;
+        return HawsamootClient.CONFIG.clientModule.customNameModule.yOffset;
     }
 
     @Override
     public boolean isEnabled() {
-        return ModConfig.CONFIG.clientModule.customNameModule.enableCustomItemNames;
+        return HawsamootClient.CONFIG.clientModule.customNameModule.enableCustomItemNames;
     }
 
     public Text updateCustomName(ItemEntity entity) {
+        if (!HawsamootClient.CONFIG.clientModule.customNameModule.enableCustomItemNames) return null;
+
         if (entity == null) return null;
 
         ItemStack stack = entity.getStack();
@@ -27,10 +29,17 @@ public class CustomNameModule implements ConfigHolder {
         int count = stack.getCount();
         String itemName = stack.getName().getString();
 
-        // Return formatted text with count
-        return Text.literal(">").formatted(Formatting.GOLD)
-                .append(Text.literal(" x" + count + " ").formatted(Formatting.RED, Formatting.BOLD))
-                .append(Text.literal(itemName).formatted(Formatting.WHITE));
-    }
+        // Apply formatting from config
+        Text countText = Text.literal(" x" + count + " ");
+        if (HawsamootClient.CONFIG.clientModule.customNameModule.countBold) {
+            countText = countText.copy().formatted(HawsamootClient.CONFIG.clientModule.customNameModule.countFormatting.getFormatting(), Formatting.BOLD);
+        } else {
+            countText = countText.copy().formatted(HawsamootClient.CONFIG.clientModule.customNameModule.countFormatting.getFormatting());
+        }
 
+        // Return formatted text with all custom options
+        return Text.literal(HawsamootClient.CONFIG.clientModule.customNameModule.prefixText).formatted(HawsamootClient.CONFIG.clientModule.customNameModule.prefixFormatting.getFormatting())
+                .append(countText)
+                .append(Text.literal(itemName).formatted(HawsamootClient.CONFIG.clientModule.customNameModule.nameFormatting.getFormatting()));
+    }
 }

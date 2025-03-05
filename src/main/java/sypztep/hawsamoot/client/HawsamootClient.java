@@ -6,10 +6,11 @@ import net.fabricmc.api.ClientModInitializer;
 import sypztep.hawsamoot.common.config.ModConfig;
 
 public class HawsamootClient implements ClientModInitializer {
+    public static ModConfig CONFIG = new ModConfig();
 
     @Override
     public void onInitializeClient() {
         AutoConfig.register(ModConfig.class, GsonConfigSerializer::new);
-        ModConfig.CONFIG = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+        CONFIG = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
     }
 }

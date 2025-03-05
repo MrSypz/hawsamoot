@@ -29,7 +29,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translate.add("text.autoconfig.hawsamoot.option.stackSizeModule.maxStackSize.@Tooltip", "Set the maximum number of items that can stack together");
 
         // Merge Module
-        translate.add("text.autoconfig.hawsamoot.option.mergeModule", "Item Merge Module");
+        translate.add("text.autoconfig.hawsamoot.option.mergeModule.enableLargerMergeRadius.@PrefixText", "Item Merge Module");
         translate.add("text.autoconfig.hawsamoot.option.mergeModule.enableLargerMergeRadius", "Enable Larger Merge Radius");
         translate.add("text.autoconfig.hawsamoot.option.mergeModule.enableLargerMergeRadius.@Tooltip", "Increases the radius for item entity merging");
         translate.add("text.autoconfig.hawsamoot.option.mergeModule.mergeRadius", "Merge Radius");
@@ -44,6 +44,42 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.enableCustomItemNames.@Tooltip", "Allows customization of item name display");
         translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.yOffset", "Name Y-Offset");
         translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.yOffset.@Tooltip", "Vertical offset for item name display");
+
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.prefixFormatting", "Prefix Color");
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.prefixFormatting.@Tooltip", "Color formatting for the prefix symbol");
+
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.countFormatting", "Count Color");
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.countFormatting.@Tooltip", "Color formatting for the item count");
+
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.countBold", "Bold Count");
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.countBold.@Tooltip", "Make the item count text bold");
+
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.nameFormatting", "Name Color");
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.nameFormatting.@Tooltip", "Color formatting for the item name");
+
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.prefixText", "Prefix Symbol");
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.prefixText.@Tooltip", "Symbol to display before the item name (e.g., '>', '•', '➤')");
+
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.showItemCount", "Show Item Count");
+        translate.add("text.autoconfig.hawsamoot.option.clientModule.customNameModule.showItemCount.@Tooltip", "Display the number of items in the stack");
+
+        translate.add("formatting.minecraft.black", "Black");
+        translate.add("formatting.minecraft.dark_blue", "Dark Blue");
+        translate.add("formatting.minecraft.dark_green", "Dark Green");
+        translate.add("formatting.minecraft.dark_aqua", "Dark Aqua");
+        translate.add("formatting.minecraft.dark_red", "Dark Red");
+        translate.add("formatting.minecraft.dark_purple", "Dark Purple");
+        translate.add("formatting.minecraft.gold", "Gold");
+        translate.add("formatting.minecraft.gray", "Gray");
+        translate.add("formatting.minecraft.dark_gray", "Dark Gray");
+        translate.add("formatting.minecraft.blue", "Blue");
+        translate.add("formatting.minecraft.green", "Green");
+        translate.add("formatting.minecraft.aqua", "Aqua");
+        translate.add("formatting.minecraft.red", "Red");
+        translate.add("formatting.minecraft.light_purple", "Light Purple");
+        translate.add("formatting.minecraft.yellow", "Yellow");
+        translate.add("formatting.minecraft.white", "White");
+
 
         // Client Module - Merge Effects
         translate.add("text.autoconfig.hawsamoot.option.clientModule.mergeEffectsModule", "Merge Effects");

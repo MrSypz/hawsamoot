@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "hawsamoot",
   "description": "Hawsamoot Module",
-  "authors": [],
+  "authors": ["MrSypz"],
   "contact": {},
   "license": "All-Rights-Reserved",
   "icon": "assets/hawsamoot/icon.png",

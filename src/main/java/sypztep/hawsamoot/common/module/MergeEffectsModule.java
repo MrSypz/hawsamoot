@@ -6,14 +6,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
-import sypztep.hawsamoot.common.config.ModConfig;
+import sypztep.hawsamoot.client.HawsamootClient;
 import sypztep.hawsamoot.common.util.ConfigHolder;
 
 public class MergeEffectsModule implements ConfigHolder {
     public MergeEffectsModule() {}
     @Override
     public boolean isEnabled() {
-        return ModConfig.CONFIG.clientModule.mergeEffectsModule.enableMergeEffects;
+        return HawsamootClient.CONFIG.clientModule.mergeEffectsModule.enableMergeEffects;
     }
 
     public void playMergeEffects(ItemEntity targetEntity, ItemEntity sourceEntity) {

@@ -6,7 +6,7 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.util.Identifier;
 import sypztep.hawsamoot.Hawsamoot;
-import sypztep.hawsamoot.common.config.ModConfig;
+import sypztep.hawsamoot.client.HawsamootClient;
 import sypztep.hawsamoot.common.util.ConfigHolder;
 
 /**
@@ -37,15 +37,11 @@ public class VisualEffectsModule implements ConfigHolder {
     public RenderLayer BEAM_NORMAL_LAYER = createBeamColorLayer(true);
     @Override
     public boolean isEnabled() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.enableVisualEffects;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.enableVisualEffects;
     }
 
     public boolean shouldRenderEffectsFor(ItemEntity itemEntity) {
-        if (!isEnabled()) {
-            return false;
-        }
-
-        // Only render for items on ground with custom names
+        if (!isEnabled()) return false;
         return itemEntity != null && itemEntity.isOnGround();
     }
 
@@ -53,77 +49,74 @@ public class VisualEffectsModule implements ConfigHolder {
      * Checks if beam effect is enabled
      */
     public boolean isBeamEffectEnabled() {
-        return isEnabled() && ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.enableBeamEffect;
-    }
-    public void setBeamEffectEnabled(boolean bl) {
-        ModConfig.CONFIG.clientModule.visualEffectsModule.enableVisualEffects = bl;
+        return isEnabled() && HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.enableBeamEffect;
     }
     /**
      * Checks if glow effect is enabled
      */
     public boolean isGlowEffectEnabled() {
-        return isEnabled() && ModConfig.CONFIG.clientModule.visualEffectsModule.glowEffectModule.enableGlowEffect;
+        return isEnabled() && HawsamootClient.CONFIG.clientModule.visualEffectsModule.glowEffectModule.enableGlowEffect;
     }
     /**
      * Checks if enhanced text display is enabled
      */
     public boolean isEnhancedTextEnabled() {
-        return isEnabled() && ModConfig.CONFIG.clientModule.visualEffectsModule.enableEnhancedText;
+        return isEnabled() && HawsamootClient.CONFIG.clientModule.visualEffectsModule.enableEnhancedText;
     }
     /**
      * Gets the beam animation duration in ticks
      */
     public int getBeamAnimationDuration() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamAnimationDuration;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamAnimationDuration;
     }
 
     public float getFadeDistance() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.fadeDistance;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.fadeDistance;
     }
 
     public float getMaxFadeDistance() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.maxFadeDistance;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.maxFadeDistance;
     }
 
     public float getBeamMaxHeight() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamMaxHeight;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamMaxHeight;
     }
 
     public float getBeamWidth() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamWidth;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamWidth;
     }
 
     public float getBeamAlpha() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamAlpha;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.beamAlpha;
     }
 
     public float getInnerRotationSpeed() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.innerRotationSpeed;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.innerRotationSpeed;
     }
 
     public float getOuterRotationSpeed() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.beamEffectModule.outerRotationSpeed;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.beamEffectModule.outerRotationSpeed;
     }
 
     // Glow Effect Accessors
     public int getGlowAnimationDuration() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.glowEffectModule.glowAnimationDuration;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.glowEffectModule.glowAnimationDuration;
     }
 
     public float getGlowSize() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.glowEffectModule.glowSize;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.glowEffectModule.glowSize;
     }
 
     public float getGlowAlpha() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.glowEffectModule.glowAlpha;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.glowEffectModule.glowAlpha;
     }
 
     public float getPulsePeriod() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.glowEffectModule.pulsePeriod;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.glowEffectModule.pulsePeriod;
     }
 
     public float getPulseAmp() {
-        return ModConfig.CONFIG.clientModule.visualEffectsModule.glowEffectModule.pulseAmp;
+        return HawsamootClient.CONFIG.clientModule.visualEffectsModule.glowEffectModule.pulseAmp;
     }
     /**
      * Gets the glow effect texture
