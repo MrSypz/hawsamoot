@@ -106,8 +106,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
             return 0f;
         }
         ItemEntityGroundTimeAccessor accessor = (ItemEntityGroundTimeAccessor) entity;
-        long hitTime = accessor.getGroundHitTime();
-        return (System.currentTimeMillis() - hitTime) / 1000f;
+        return (System.currentTimeMillis() - accessor.getGroundHitTime()) / 1000f;
     }
 
     @Unique
