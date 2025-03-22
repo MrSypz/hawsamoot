@@ -7,7 +7,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
-import net.minecraft.client.render.entity.state.ItemEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.text.Text;
@@ -29,55 +28,48 @@ import sypztep.hawsamoot.client.render.util.WorldBorderRenderer;
 import sypztep.hawsamoot.common.module.CustomNameModule;
 import sypztep.hawsamoot.common.module.VisualEffectsModule;
 import sypztep.hawsamoot.common.util.ColorUtils;
+import sypztep.hawsamoot.common.util.ModRenderLayer;
+import sypztep.hawsamoot.common.util.ItemEntityGroundTimeAccessor;
 
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ItemEntityRenderer.class)
-public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity, ItemEntityRenderState> {
+public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity> {
     @Unique
     private final VisualEffectsModule visualModule = new VisualEffectsModule();
 
     @Unique
     private final CustomNameModule customNameModule = new CustomNameModule();
 
-    @Unique
-    private ItemEntity itemEntity;
-
     protected ItemEntityRendererMixin(EntityRendererFactory.Context context) {
         super(context);
     }
 
-    @Unique
-    private boolean isValid() {
-        return itemEntity != null && itemEntity.isOnGround();
-    }
+    @Inject(method = "render(Lnet/minecraft/entity/ItemEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("RETURN"))
+    public void onRender(ItemEntity entity, float f, float g, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+        if (!visualModule.shouldRenderEffectsFor(entity)) {
+            return;
+        }
 
-    @Inject(method = "updateRenderState", at = @At("TAIL"))
-    public void onUpdateRenderState(ItemEntity itemEntity, ItemEntityRenderState state, float tickDelta, CallbackInfo ci) {
-        this.itemEntity = itemEntity;
-    }
-
-    @Inject(method = "render", at = @At("RETURN"))
-    public void onRender(ItemEntityRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-        if (!visualModule.shouldRenderEffectsFor(itemEntity)) {
+        if (!hasHitGround(entity)) {
             return;
         }
 
         if (visualModule.isBeamEffectEnabled()) {
-            renderSquareBeam(matrices, vertexConsumers, state);
+            renderSquareBeam(matrices, vertexConsumers, entity);
         }
 
         if (visualModule.isGlowEffectEnabled()) {
-            renderEnhancedGlow(matrices, vertexConsumers, state, light);
+            renderEnhancedGlow(matrices, vertexConsumers, entity, light);
         }
 
         Vec3d cameraPos = this.dispatcher.camera.getPos();
-        Vec3d itemPos = new Vec3d(itemEntity.getX(), itemEntity.getY(), itemEntity.getZ());
+        Vec3d itemPos = new Vec3d(entity.getX(), entity.getY(), entity.getZ());
         double distance = cameraPos.distanceTo(itemPos);
 
         if (distance <= visualModule.getMaxFadeDistance() && visualModule.isEnhancedTextEnabled() && customNameModule.isEnabled()) {
-            renderCustomTextWithBorder(matrices, vertexConsumers, state, distance, visualModule.getMaxFadeDistance());
+            renderCustomTextWithBorder(matrices, vertexConsumers, entity, distance, visualModule.getMaxFadeDistance());
         }
     }
 
@@ -92,8 +84,8 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     }
 
     @Unique
-    private BorderTemplate getBorderTemplate() {
-        BorderStyle borderStyle = BorderRenderer.determineItemBorderStyle(itemEntity.getStack());
+    private BorderTemplate getBorderTemplate(ItemEntity entity) {
+        BorderStyle borderStyle = BorderRenderer.determineItemBorderStyle(entity.getStack());
         return borderStyle.getBorderTemplate();
     }
 
@@ -103,36 +95,46 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     }
 
     @Unique
-    private float getAnimatedProgress(ItemEntityRenderState state, float animationDuration) {
-        float rawProgress = Math.min(state.age / animationDuration, 1.0f);
+    private boolean hasHitGround(ItemEntity entity) {
+        ItemEntityGroundTimeAccessor accessor = (ItemEntityGroundTimeAccessor) entity;
+        return entity.isOnGround() && accessor.getGroundHitTime() != -1;
+    }
+    //TODO: make it better time track
+    @Unique
+    private float getTimeOnGround(ItemEntity entity) {
+        if (!hasHitGround(entity)) {
+            return 0f;
+        }
+        ItemEntityGroundTimeAccessor accessor = (ItemEntityGroundTimeAccessor) entity;
+        long hitTime = accessor.getGroundHitTime();
+        return (System.currentTimeMillis() - hitTime) / 1000f;
+    }
+
+    @Unique
+    private float getAnimatedProgress(ItemEntity entity, float animationDuration) {
+        float timeOnGround = getTimeOnGround(entity);
+        float rawProgress = Math.min(timeOnGround / (animationDuration / 20f), 1.0f);
         return calculateEaseProgress(rawProgress);
     }
 
     @Unique
-    private void renderEnhancedGlow(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ItemEntityRenderState state, int light) {
-        if (!isValid()) return;
-
-        float progress = getAnimatedProgress(state, visualModule.getGlowAnimationDuration());
+    private void renderEnhancedGlow(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ItemEntity entity, int light) {
+        float progress = getAnimatedProgress(entity, visualModule.getGlowAnimationDuration());
         if (progress < 0.1f) return;
 
-        // Dynamic sizing with consistent pulse mechanism
-        float baseSize = calculateGlowSize(state, progress);
+        float baseSize = calculateGlowSize(entity, progress);
         float halfSize = baseSize / 2.0f;
 
-        // Prepare rendering context
         matrices.push();
         matrices.translate(0, 0.01f, 0);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90.0f));
 
-        // Determine border style and colors
-        BorderTemplate borderTemplate = getBorderTemplate();
+        BorderTemplate borderTemplate = getBorderTemplate(entity);
         float[] startColors = getColorComponents(borderTemplate.colorStart());
         float[] endColors = getColorComponents(borderTemplate.colorEnd());
 
-        // Calculate alpha with consistent approach
-        float alpha = calculateGlowAlpha(state, progress);
+        float alpha = calculateGlowAlpha(entity, progress);
 
-        // Increase brightness by multiplying color components
         float brightnessMultiplier = 5f;
         renderGlowQuad(matrices, vertexConsumers, light, halfSize,
                 Math.min(startColors[0] * brightnessMultiplier, 1.0f),
@@ -147,7 +149,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     }
 
     @Unique
-    private float calculateGlowSize(ItemEntityRenderState state, float progress) {
+    private float calculateGlowSize(ItemEntity state, float progress) {
         float baseSize = visualModule.getGlowSize() + 0.5f * progress;
         if (progress >= 1.0) {
             float pulsePeriod = 80f;
@@ -159,11 +161,12 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     }
 
     @Unique
-    private float calculateGlowAlpha(ItemEntityRenderState state, float progress) {
+    private float calculateGlowAlpha(ItemEntity entity, float progress) {
         float baseAlpha = visualModule.getGlowAlpha() * progress;
         if (progress >= 1.0) {
+            float timeOnGround = getTimeOnGround(entity);
             float pulseValue = visualModule.calculatePulse(
-                    state.age,
+                    (int)(timeOnGround * 20f),
                     visualModule.getGlowAnimationDuration(),
                     visualModule.getPulsePeriod(),
                     visualModule.getPulseAmp()
@@ -193,7 +196,6 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
 
         Vector3f normal = new Vector3f(0, 0, 1);
 
-        // Quad vertices with color gradient
         consumer.vertex(matrix, -halfSize, -halfSize, 0)
                 .color(r, g, b, a)
                 .texture(0, 1)
@@ -224,8 +226,8 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     }
 
     @Unique
-    private void renderSquareBeam(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ItemEntityRenderState state) {
-        if (!isValid()) return;
+    private void renderSquareBeam(MatrixStack matrices, VertexConsumerProvider vertexConsumers, ItemEntity state) {
+        if (state != null && !state.isOnGround()) return;
 
         float progress = getAnimatedProgress(state, visualModule.getBeamAnimationDuration());
         float height = visualModule.getBeamMaxHeight() * progress;
@@ -241,23 +243,19 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
         float alpha = visualModule.getBeamAlpha() * progress;
         float endAlpha = 0.0f;
 
-        // Get vertex consumer and matrix
         VertexConsumer consumer = vertexConsumers.getBuffer(visualModule.BEAM_NORMAL_LAYER);
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
         float outerRotation = (state.age / 20.0f) * visualModule.getOuterRotationSpeed() * (float) Math.PI;
         float innerRotation = (state.age / 20.0f) * visualModule.getInnerRotationSpeed() * (float) Math.PI;
 
-        // Get border color directly
-        BorderTemplate borderTemplate = getBorderTemplate();
+        BorderTemplate borderTemplate = getBorderTemplate(state);
         float[] bgStartComponents = getColorComponents(borderTemplate.colorStart());
 
-        // Draw the outer beam with border color
         drawRotatingBeamSides(context, consumer, matrix, halfWidth, height,
                 bgStartComponents[0], bgStartComponents[1], bgStartComponents[2],
                 alpha, endAlpha, outerRotation);
 
-        // Draw the inner beam with the same color but slightly dimmer
         float innerWidth = halfWidth * 0.5f;
         drawRotatingBeamSides(context, consumer, matrix, innerWidth, height,
                 bgStartComponents[0], bgStartComponents[1], bgStartComponents[2],
@@ -274,20 +272,18 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
         float sin = (float) Math.sin(rotation);
         float cos = (float) Math.cos(rotation);
 
-        // Calculate rotated corner positions
-        float x1 = -halfWidth * cos - (-halfWidth) * sin;  // front-left
+        float x1 = -halfWidth * cos - (-halfWidth) * sin;
         float z1 = -halfWidth * sin + (-halfWidth) * cos;
 
-        float x2 = halfWidth * cos - (-halfWidth) * sin;   // front-right
+        float x2 = halfWidth * cos - (-halfWidth) * sin;
         float z2 = halfWidth * sin + (-halfWidth) * cos;
 
-        float x3 = halfWidth * cos - halfWidth * sin;      // back-right
+        float x3 = halfWidth * cos - halfWidth * sin;
         float z3 = halfWidth * sin + halfWidth * cos;
 
-        float x4 = -halfWidth * cos - halfWidth * sin;     // back-left
+        float x4 = -halfWidth * cos - halfWidth * sin;
         float z4 = -halfWidth * sin + halfWidth * cos;
 
-        // Draw the four sides of the beam
         drawBeamSide(context, consumer, matrix, x1, z1, x2, z2, height, r, g, b, alpha, endAlpha);
         drawBeamSide(context, consumer, matrix, x3, z3, x4, z4, height, r, g, b, alpha, endAlpha);
         drawBeamSide(context, consumer, matrix, x4, z4, x1, z1, height, r, g, b, alpha, endAlpha);
@@ -307,92 +303,70 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
 
     @Unique
     private void renderCustomTextWithBorder(MatrixStack matrices, VertexConsumerProvider vertexConsumers,
-                                            ItemEntityRenderState state, double distance, float maxDistance) {
-        if (!isValid()) return;
+                                            ItemEntity state, double distance, float maxDistance) {
+        if (state != null && !state.isOnGround()) return;
 
-        // Calculate alpha based on distance
         float distanceAlpha = 1.0f;
         if (distance > visualModule.getFadeDistance()) {
             distanceAlpha = (float)(1.0 - (distance - visualModule.getFadeDistance()) / (maxDistance - visualModule.getFadeDistance()));
         }
 
-        // Get animation progress using the common method
         float progress = getAnimatedProgress(state, visualModule.getBeamAnimationDuration());
-
-        // Combine animation progress with distance fading
         float combinedAlpha = progress * distanceAlpha;
 
-        // Skip if not enough visibility
         if (combinedAlpha < 0.1f) return;
 
-        Text text = customNameModule.updateCustomName(itemEntity);
-
-        // Skip if no text
+        Text text = customNameModule.updateCustomName(state);
         if (text == null) return;
 
-        // Calculate text alpha based on combined alpha value
         int textAlpha = (int)(255 * combinedAlpha);
 
-        // Calculate position: above the item
         matrices.push();
 
-        // Get the camera and item positions
         Vec3d cameraPos = this.dispatcher.camera.getPos();
-        Vec3d itemPos = new Vec3d(itemEntity.getX(), itemEntity.getY() - customNameModule.getYOffset(), itemEntity.getZ());
+        Vec3d itemPos = new Vec3d(state.getX(), state.getY() - customNameModule.getYOffset(), state.getZ());
         Vec3d directionToCamera = cameraPos.subtract(itemPos).normalize();
 
-        // Calculate height oscillation
         float heightOffset = 0.5f + 0.2f * (float)Math.sin((state.age / 20.0f) * 0.5);
 
-        // Apply translation: move along the direction to camera vector, plus some height
         matrices.translate(
                 directionToCamera.x * 0.3f,
                 heightOffset + directionToCamera.y,
                 directionToCamera.z * 0.3f
         );
 
-        // Make text face the player
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-this.dispatcher.camera.getYaw()));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(this.dispatcher.camera.getPitch()));
 
-        // Scale text appropriately
         float textScale = 0.025f * (0.8f + 0.2f * combinedAlpha);
         matrices.scale(-textScale, -textScale, textScale);
 
-        // Get text dimensions for border
         float textWidth = this.getTextRenderer().getWidth(text);
         float borderWidth = 2.0f;
 
-        // Calculate border dimensions
         int x1 = (int)(-textWidth/2 - borderWidth);
-        int y1 = (int)(- borderWidth);
+        int y1 = (int)(-borderWidth);
         int x2 = (int)(textWidth/2 + borderWidth);
         int y2 = (int)(this.getTextRenderer().fontHeight + borderWidth);
 
-        // Get border style and template
-        BorderStyle borderStyle = BorderRenderer.determineItemBorderStyle(itemEntity.getStack());
+        BorderStyle borderStyle = BorderRenderer.determineItemBorderStyle(state.getStack());
         BorderTemplate borderTemplate = borderStyle.getBorderTemplate();
         Identifier identifier = borderTemplate.identifier();
 
-        // Apply alpha to all colors
         int bgStart = ColorUtils.applyAlpha(borderTemplate.backgroundStartColor(), textAlpha);
         int bgEnd = ColorUtils.applyAlpha(borderTemplate.backgroundEndColor(), textAlpha);
         int colorStart = ColorUtils.applyAlpha(borderTemplate.colorStart(), textAlpha);
         int colorEnd = ColorUtils.applyAlpha(borderTemplate.colorEnd(), textAlpha);
 
-        // Render background
         VertexContext context = new VertexContext(matrices, vertexConsumers);
         WorldBorderRenderer.renderTooltipBackground(context, x1, y1, x2 - x1, y2 - y1, bgStart, bgEnd, colorStart, colorEnd);
 
-        // Text position for centering
         float textX = -textWidth / 2;
         float textY = 0;
 
-        // Enhanced lighting for text
         int enhancedLight = LightmapTextureManager.MAX_LIGHT_COORDINATE;
 
-        // Draw main text
-        int textColor = 0xFFFFFF | (textAlpha << 24); // White text with alpha
+        int textColor = 0xFFFFFF | (textAlpha << 24);
         this.getTextRenderer().draw(
                 text,
                 textX,
@@ -406,7 +380,6 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
                 enhancedLight
         );
 
-        // Draw border
         renderBorder(context, borderStyle, identifier, x1, y1, y2, textWidth);
 
         matrices.pop();
@@ -416,29 +389,23 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     private void renderBorder(VertexContext context, BorderStyle borderStyle, Identifier identifier,
                               int x1, int y1, int y2, float textWidth) {
         int borderIndex = borderStyle.ordinal();
-        Function<Identifier, RenderLayer> renderLayerProvider = RenderLayer::getGuiTextured;
+        Function<Identifier, RenderLayer> renderLayerProvider = ModRenderLayer::getGuiTextured;
 
-        // Top-left corner
         WorldBorderRenderer.drawTextureRegion(context, renderLayerProvider, identifier,
                 x1 - 6, y2 - 6, 0, borderIndex * 16, 8, 8, 128, 128);
 
-        // Top-right corner
         WorldBorderRenderer.drawTextureRegion(context, renderLayerProvider, identifier,
                 (int) (x1 + textWidth - 2), y2 - 6, 56, borderIndex * 16, 8, 8, 128, 128);
 
-        // Bottom-left corner
         WorldBorderRenderer.drawTextureRegion(context, renderLayerProvider, identifier,
                 x1 - 6, y2 + getTextRenderer().fontHeight - 2, 0, 8 + borderIndex * 16, 8, 8, 128, 128);
 
-        // Bottom-right corner
         WorldBorderRenderer.drawTextureRegion(context, renderLayerProvider, identifier,
                 (int) (x1 + textWidth - 2), y2 + getTextRenderer().fontHeight - 2, 56, 8 + borderIndex * 16, 8, 8, 128, 128);
 
-        // Top border
         WorldBorderRenderer.drawTextureRegion(context, renderLayerProvider, identifier,
                 (int) ((x1 - 6 + x1 + textWidth + 6) / 2 - 24), y1 - y2 + 1, 8, borderIndex * 16, 48, 8, 128, 128);
 
-        // Bottom border
         WorldBorderRenderer.drawTextureRegion(context, renderLayerProvider, identifier,
                 (int) ((x1 - 6 + x1 + textWidth + 6) / 2 - 24), y2 + 1, 8, 8 + borderIndex * 16, 48, 8, 128, 128);
     }

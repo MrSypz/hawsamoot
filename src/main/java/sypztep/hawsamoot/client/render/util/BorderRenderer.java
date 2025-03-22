@@ -6,7 +6,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.gui.tooltip.TooltipPositioner;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -19,10 +18,8 @@ import sypztep.hawsamoot.common.init.ModDataComponents;
 import sypztep.hawsamoot.common.tag.ModItemTags;
 import sypztep.hawsamoot.common.util.ColorUtils;
 import sypztep.hawsamoot.common.util.RarityHelper;
-import sypztep.hawsamoot.mixin.borderstyle.DrawContextAccessor;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Handles rendering of styled borders for tooltips and other UI elements.
@@ -81,14 +78,14 @@ public final class BorderRenderer {
         context.getMatrices().push();
         renderTooltipBackground(context, posX, posY, maxWidth, totalHeight, bgStart, bgEnd, colorStart, colorEnd);
         context.getMatrices().translate(0.0f, 0.0f, 400.0f);
-        VertexConsumerProvider.Immediate vertexConsumers = ((DrawContextAccessor) context).getVertexConsumers();
+        VertexConsumerProvider.Immediate vertexConsumers = context.getVertexConsumers();
         int currentY = posY;
         for (int i = 0; i < components.size(); i++) {
             TooltipComponent component = components.get(i);
             if (component != null) {
                 Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
                 component.drawText(textRenderer, posX, currentY, matrix, vertexConsumers);
-                component.drawItems(textRenderer, posX, currentY, maxWidth, heights[i], context);
+                component.drawItems(textRenderer, posX, currentY, context);
                 currentY += heights[i];
                 if (i == 0 && components.size() > 1) currentY += 2;
 
@@ -99,30 +96,28 @@ public final class BorderRenderer {
 
         context.getMatrices().translate(0.0f, 0.0f, 400.0f);
 
-        Function<Identifier, RenderLayer> renderLayerProvider = RenderLayer::getGuiTextured;
-
         // Top-left corner
-        drawTextureRegion(context, renderLayerProvider, identifier,
+        drawTextureRegion(context, identifier,
                 posX - 6, posY - 6, 0, borderIndex * 16, 8, 8, 128, 128);
 
         // Top-right corner
-        drawTextureRegion(context, renderLayerProvider, identifier,
+        drawTextureRegion(context, identifier,
                 posX + maxWidth - 2, posY - 6, 56, borderIndex * 16, 8, 8, 128, 128);
 
         // Bottom-left corner
-        drawTextureRegion(context, renderLayerProvider, identifier,
+        drawTextureRegion(context, identifier,
                 posX - 6, posY + totalHeight - 2, 0, 8 + borderIndex * 16, 8, 8, 128, 128);
 
         // Bottom-right corner
-        drawTextureRegion(context, renderLayerProvider, identifier,
+        drawTextureRegion(context, identifier,
                 posX + maxWidth - 2, posY + totalHeight - 2, 56, 8 + borderIndex * 16, 8, 8, 128, 128);
 
         // Top border
-        drawTextureRegion(context, renderLayerProvider, identifier,
+        drawTextureRegion(context, identifier,
                 (posX - 6 + posX + maxWidth + 6) / 2 - 24, posY - 9, 8, borderIndex * 16, 48, 8, 128, 128);
 
         // Bottom border
-        drawTextureRegion(context, renderLayerProvider, identifier,
+        drawTextureRegion(context, identifier,
                 (posX - 6 + posX + maxWidth + 6) / 2 - 24, posY + totalHeight + 1, 8, 8 + borderIndex * 16, 48, 8, 128, 128);
 
         context.getMatrices().pop();
@@ -130,7 +125,7 @@ public final class BorderRenderer {
 
     private static int getComponentHeight(TooltipComponent component, TextRenderer textRenderer) {
         try {
-            int height = component.getHeight(textRenderer);
+            int height = component.getHeight();
             if (height > 0) return height;
             if (component instanceof TooltipComponent) return textRenderer.fontHeight;
             return textRenderer.fontHeight;
@@ -175,10 +170,10 @@ public final class BorderRenderer {
         };
     }
 
-    private static void drawTextureRegion(DrawContext context, Function<Identifier, RenderLayer> renderLayerProvider,
+    private static void drawTextureRegion(DrawContext context,
                                           Identifier texture, int x, int y, int u, int v,
                                           int width, int height, int textureWidth, int textureHeight) {
-        context.drawTexture(renderLayerProvider, texture, x, y, u, v, width, height, textureWidth, textureHeight, -1);
+        context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight, -1);
     }
 
     private static void renderTooltipBackground(DrawContext context, int x, int y, int width, int height,

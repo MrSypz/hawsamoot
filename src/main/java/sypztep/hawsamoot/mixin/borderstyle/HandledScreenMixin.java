@@ -31,7 +31,7 @@ public abstract class HandledScreenMixin extends Screen {
     @Inject(
             method = "drawMouseoverTooltip",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawTooltip(Lnet/minecraft/client/font/TextRenderer;Ljava/util/List;Ljava/util/Optional;IILnet/minecraft/util/Identifier;)V"),
+                    target = "Lnet/minecraft/client/gui/DrawContext;drawTooltip(Lnet/minecraft/client/font/TextRenderer;Ljava/util/List;Ljava/util/Optional;II)V"),
             cancellable = true,
             locals = LocalCapture.CAPTURE_FAILSOFT
     )

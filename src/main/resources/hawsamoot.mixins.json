@@ -7,10 +7,10 @@
     "itemmerge.itemstacksize.ItemEntityMixin",
     "itemmerge.itemstacksize.ItemStackMixin",
     "itemmerge.mergeeffects.ItemEntityMixin",
-    "itemmerge.mergeradius.ItemEntityMixin"
+    "itemmerge.mergeradius.ItemEntityMixin",
+    "itemmerge.util.ItemEntityMixin"
   ],
   "client": [
-    "borderstyle.DrawContextAccessor",
     "borderstyle.HandledScreenMixin",
     "itemmerge.client.visual.ItemEntityRendererMixin"
   ],

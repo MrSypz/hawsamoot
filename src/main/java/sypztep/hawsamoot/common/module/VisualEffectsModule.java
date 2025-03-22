@@ -17,7 +17,7 @@ public class VisualEffectsModule implements ConfigHolder {
     private static final Identifier GLOW_TEXTURE = Hawsamoot.id( "textures/misc/white.png");
     private RenderLayer createBeamColorLayer(boolean affectsOutline) {
         RenderLayer.MultiPhaseParameters params = RenderLayer.MultiPhaseParameters.builder()
-                .program(RenderLayer.POSITION_COLOR_PROGRAM)
+                .program(RenderLayer.POSITION_COLOR_LIGHTMAP_PROGRAM)
                 .transparency(RenderLayer.TRANSLUCENT_TRANSPARENCY)
                 .writeMaskState(affectsOutline ? RenderLayer.COLOR_MASK : RenderLayer.ALL_MASK)  // if true it can't see though water
                 .cull(RenderLayer.DISABLE_CULLING)
@@ -141,6 +141,7 @@ public class VisualEffectsModule implements ConfigHolder {
         float pulseTime = ((entityAge - animationDuration) % pulsePeriod) / pulsePeriod;
         return pulseAmplitude * (float) Math.sin(pulseTime * Math.PI * 2);
     }
-
-
+    public float getTextAnimationDuration() {
+        return 30.0f;
+    }
 }
