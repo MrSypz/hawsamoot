@@ -4,42 +4,52 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import sypztep.hawsamoot.Hawsamoot;
 import sypztep.hawsamoot.client.HawsamootClient;
+import sypztep.hawsamoot.common.config.ModConfig;
 import sypztep.hawsamoot.common.util.ConfigHolder;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CustomNameModule implements ConfigHolder {
     public CustomNameModule() {}
     public float getYOffset() {
         return HawsamootClient.CONFIG.clientModule.customNameModule.yOffset;
     }
-
     @Override
     public boolean isEnabled() {
         return HawsamootClient.CONFIG.clientModule.customNameModule.enableCustomItemNames;
     }
+    private static final Pattern NAME_PATTERN = Pattern.compile("^\\s*>\\s*x(\\d+)\\s+(.+)$");
 
     public Text updateCustomName(ItemEntity entity) {
+        ModConfig.ClientModule.CustomNameModule config = HawsamootClient.CONFIG.clientModule.customNameModule;
         if (!HawsamootClient.CONFIG.clientModule.customNameModule.enableCustomItemNames) return null;
 
-        if (entity == null) return null;
-
         ItemStack stack = entity.getStack();
-        if (stack.isEmpty()) return null;
+        if (stack.isEmpty() || !entity.hasCustomName()) return null;
 
-        int count = stack.getCount();
-        String itemName = stack.getName().getString();
+        String fullName = entity.getCustomName().getString();
+        Matcher m = NAME_PATTERN.matcher(fullName);
+        if (!m.find()) return null;
 
-        // Apply formatting from config
-        Text countText = Text.literal(" x" + count + " ");
-        if (HawsamootClient.CONFIG.clientModule.customNameModule.countBold) {
-            countText = countText.copy().formatted(HawsamootClient.CONFIG.clientModule.customNameModule.countFormatting.getFormatting(), Formatting.BOLD);
-        } else {
-            countText = countText.copy().formatted(HawsamootClient.CONFIG.clientModule.customNameModule.countFormatting.getFormatting());
-        }
+        String countStr = m.group(1);
+        String itemName = m.group(2).trim();  // Trim whitespace from item name
 
-        // Return formatted text with all custom options
-        return Text.literal(HawsamootClient.CONFIG.clientModule.customNameModule.prefixText).formatted(HawsamootClient.CONFIG.clientModule.customNameModule.prefixFormatting.getFormatting())
-                .append(countText)
-                .append(Text.literal(itemName).formatted(HawsamootClient.CONFIG.clientModule.customNameModule.nameFormatting.getFormatting()));
+        // Build text components
+        Text prefix = Text.literal(config.prefixText)
+                .formatted(config.prefixFormatting.getFormatting());
+
+        Text count = Text.literal(" x" + countStr + " ")
+                .formatted(config.countFormatting.getFormatting())
+                .styled(style ->
+                        config.countBold ? style.withBold(true) : style
+                );
+
+        Text name = Text.literal(itemName)
+                .formatted(config.nameFormatting.getFormatting());
+
+        return prefix.copy().append(count).append(name);
     }
 }

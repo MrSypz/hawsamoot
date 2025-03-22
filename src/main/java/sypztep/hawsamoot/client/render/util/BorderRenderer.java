@@ -95,30 +95,12 @@ public final class BorderRenderer {
         int borderIndex = borderStyle.ordinal();
 
         context.getMatrices().translate(0.0f, 0.0f, 400.0f);
-
-        // Top-left corner
-        drawTextureRegion(context, identifier,
-                posX - 6, posY - 6, 0, borderIndex * 16, 8, 8, 128, 128);
-
-        // Top-right corner
-        drawTextureRegion(context, identifier,
-                posX + maxWidth - 2, posY - 6, 56, borderIndex * 16, 8, 8, 128, 128);
-
-        // Bottom-left corner
-        drawTextureRegion(context, identifier,
-                posX - 6, posY + totalHeight - 2, 0, 8 + borderIndex * 16, 8, 8, 128, 128);
-
-        // Bottom-right corner
-        drawTextureRegion(context, identifier,
-                posX + maxWidth - 2, posY + totalHeight - 2, 56, 8 + borderIndex * 16, 8, 8, 128, 128);
-
-        // Top border
-        drawTextureRegion(context, identifier,
-                (posX - 6 + posX + maxWidth + 6) / 2 - 24, posY - 9, 8, borderIndex * 16, 48, 8, 128, 128);
-
-        // Bottom border
-        drawTextureRegion(context, identifier,
-                (posX - 6 + posX + maxWidth + 6) / 2 - 24, posY + totalHeight + 1, 8, 8 + borderIndex * 16, 48, 8, 128, 128);
+        context.drawTexture(identifier, posX - 6, posY - 6, 0, borderIndex * 16, 8, 8, 128, 128);
+        context.drawTexture(identifier, posX + maxWidth - 2, posY - 6, 56, borderIndex * 16, 8, 8, 128, 128);
+        context.drawTexture(identifier, posX - 6, posY + totalHeight - 2, 0, 8 + borderIndex * 16, 8, 8, 128, 128);
+        context.drawTexture(identifier, posX + maxWidth - 2, posY + totalHeight - 2, 56, 8 + borderIndex * 16, 8, 8, 128, 128);
+        context.drawTexture(identifier, (posX - 6 + posX + maxWidth + 6) / 2 - 24, posY - 9, 8, borderIndex * 16, 48, 8, 128, 128);
+        context.drawTexture(identifier, (posX - 6 + posX + maxWidth + 6) / 2 - 24, posY + totalHeight + 1, 8, 8 + borderIndex * 16, 48, 8, 128, 128);
 
         context.getMatrices().pop();
     }
@@ -168,12 +150,6 @@ public final class BorderRenderer {
             case "epic" -> RarityBorder.EPIC.toBorderStyle();
             default -> RarityBorder.COMMON.toBorderStyle();
         };
-    }
-
-    private static void drawTextureRegion(DrawContext context,
-                                          Identifier texture, int x, int y, int u, int v,
-                                          int width, int height, int textureWidth, int textureHeight) {
-        context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight, -1);
     }
 
     private static void renderTooltipBackground(DrawContext context, int x, int y, int width, int height,

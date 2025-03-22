@@ -1,6 +1,9 @@
 package sypztep.hawsamoot.mixin.itemmerge.util;
 
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,6 +28,13 @@ public abstract class ItemEntityMixin implements ItemEntityGroundTimeAccessor {
          else if (!isOnGround) groundHitTime = -1; // Reset when no longer on ground
 
         wasOnGroundLastTick = isOnGround;
+
+        if (!entity.getWorld().isClient) {
+            ItemStack stack = entity.getStack();
+            String itemName = stack.getName().getString();
+            int count = stack.getCount();
+            entity.setCustomName(createCustomName(count, itemName));
+        }
     }
 
     @Override
@@ -49,5 +59,13 @@ public abstract class ItemEntityMixin implements ItemEntityGroundTimeAccessor {
     @Unique
     public void setWasOnGroundLastTick(boolean state) {
         this.wasOnGroundLastTick = state;
+    }
+    public Text createCustomName(int count, String name) {
+        return Text.literal(">")
+                .formatted(Formatting.GOLD)
+                .append(Text.literal(" x" + count + " ")
+                        .formatted(Formatting.RED, Formatting.BOLD))
+                .append(Text.literal(name)
+                        .formatted(Formatting.GRAY));
     }
 }

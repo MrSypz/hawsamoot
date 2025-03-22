@@ -67,12 +67,10 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
         Vec3d cameraPos = this.dispatcher.camera.getPos();
         Vec3d itemPos = new Vec3d(entity.getX(), entity.getY(), entity.getZ());
         double distance = cameraPos.distanceTo(itemPos);
-
         if (distance <= visualModule.getMaxFadeDistance() && visualModule.isEnhancedTextEnabled() && customNameModule.isEnabled()) {
             renderCustomTextWithBorder(matrices, vertexConsumers, entity, distance, visualModule.getMaxFadeDistance());
         }
     }
-
     @Unique
     private float calculateEaseProgress(float rawProgress) {
         if (rawProgress <= 0) return 0;
@@ -97,17 +95,21 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
     @Unique
     private boolean hasHitGround(ItemEntity entity) {
         ItemEntityGroundTimeAccessor accessor = (ItemEntityGroundTimeAccessor) entity;
-        return entity.isOnGround() && accessor.getGroundHitTime() != -1;
+        return accessor.getGroundHitTime() != -1;
     }
-    //TODO: make it better time track
+
     @Unique
     private float getTimeOnGround(ItemEntity entity) {
-        if (!hasHitGround(entity)) {
+        ItemEntityGroundTimeAccessor accessor = (ItemEntityGroundTimeAccessor) entity;
+        long groundHitTime = accessor.getGroundHitTime();
+
+        if (groundHitTime == -1) {
             return 0f;
         }
-        ItemEntityGroundTimeAccessor accessor = (ItemEntityGroundTimeAccessor) entity;
-        return (System.currentTimeMillis() - accessor.getGroundHitTime()) / 1000f;
+
+        return (System.currentTimeMillis() - groundHitTime) / 1000f;
     }
+
 
     @Unique
     private float getAnimatedProgress(ItemEntity entity, float animationDuration) {
